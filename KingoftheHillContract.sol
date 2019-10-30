@@ -1,11 +1,14 @@
 pragma solidity 0.5.11;
 
-contract KilloftheHillContract {
+contract KingoftheHillContract {
     address payable public king;
     uint public kingPrice;
 
-    constructor() public {
+    event Coronation(address indexed _newKing, uint indexed _newKingPrice);
+
+    constructor() public payable {
         king = msg.sender;
+        kingPrice = msg.value;
     }
 
     // Fallback function
@@ -19,5 +22,6 @@ contract KilloftheHillContract {
         // Transfers balance to the old king.
         king.transfer(msg.value);
         king = msg.sender;
+        emit Coronation(king, kingPrice);
     }
 }
