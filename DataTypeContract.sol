@@ -1,8 +1,7 @@
-pragma solidity 0.5.1;
+pragma solidity ^0.5.1;
 
 contract PrimativeDataTypeContract {
     string public valueString = "This is the value";
-    // Constant prevents the value from changing.
     bool public constant valueBool = true;
     uint public valueUint = 1;
 

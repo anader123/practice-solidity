@@ -13,7 +13,7 @@ contract KingoftheHillContract {
 
     // Fallback function
     function() external payable {
-        becomeKing();
+        revert();
     }
 
     function becomeKing() public payable {
