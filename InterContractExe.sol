@@ -1,3 +1,4 @@
+// Consensys online course
 pragma solidity ^0.5.0;
 
 contract Base {
@@ -19,8 +20,9 @@ contract FirstCaller {
         base.setNum(_num);
     }
 
-    function callSetNum(address _base, uint _num) public {
+    function callSetNum(address _base, uint _num) public returns(bool) {
         (bool status, bytes memory returnData) = _base.call(abi.encodeWithSignature("setNum(uint256)", _num));
+        return status;
     }
 
     function delegatecallSetNum(address _base, uint _num) public returns(bool) {
