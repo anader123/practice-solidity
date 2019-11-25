@@ -1,8 +1,11 @@
 // Consensys online course
 pragma solidity ^0.5.0;
 
-contract EventTicketsV2 {
+// Contract from OpenZeppelin Package
+import "@openzeppelin/contracts/math/SafeMath.sol";
 
+contract EventTicketsV2 {
+    using SafeMath for uint;
     uint public  PRICE_TICKET = 100 wei;
     address payable public owner;
 
@@ -57,12 +60,12 @@ contract EventTicketsV2 {
 
     function buyTickets(uint _eventId, uint _ticketAmount) public payable {
         require(events[_eventId].isOpen, "Event is no longer selling tickets");
-        require(msg.value >= PRICE_TICKET * _ticketAmount, "You didn't pay enough to purchase that amount of tickets");
-        require(events[_eventId].totalTickets - events[_eventId].sales >= _ticketAmount, "There aren't enought tickets left");
-        events[_eventId].buyers[msg.sender] += _ticketAmount;
-        events[_eventId].sales += _ticketAmount;
-        if (msg.value > (_ticketAmount * PRICE_TICKET)) {
-            msg.sender.transfer(msg.value - (_ticketAmount * PRICE_TICKET));
+        require(msg.value >= PRICE_TICKET.mul(_ticketAmount), "You didn't pay enough to purchase that amount of tickets");
+        require(events[_eventId].totalTickets.sub(events[_eventId].sales) >= _ticketAmount, "There aren't enought tickets left");
+        events[_eventId].buyers[msg.sender] = events[_eventId].buyers[msg.sender].add(_ticketAmount);
+        events[_eventId].sales = events[_eventId].sales.add(_ticketAmount);
+        if (msg.value > (_ticketAmount.mul(PRICE_TICKET))) {
+            msg.sender.transfer(msg.value.sub(_ticketAmount.mul(PRICE_TICKET)));
         }
         emit LogBuyTickets(msg.sender, _eventId, _ticketAmount);
     }
@@ -70,7 +73,7 @@ contract EventTicketsV2 {
     function getRefund(uint _eventId) public {
         require(events[_eventId].buyers[msg.sender] > 0, "You don't have any tickets to refund from this address");
         uint ticketAmount = events[_eventId].buyers[msg.sender];
-        uint refundAmount = events[_eventId].buyers[msg.sender]*PRICE_TICKET;
+        uint refundAmount = events[_eventId].buyers[msg.sender].mul(PRICE_TICKET);
         events[_eventId].sales -= ticketAmount;
         events[_eventId].buyers[msg.sender] = 0;
         msg.sender.transfer(refundAmount);
@@ -83,7 +86,7 @@ contract EventTicketsV2 {
 
     function endSale(uint _eventId) public isOwner {
         events[_eventId].isOpen = false;
-        uint eventBalance = events[_eventId].sales * PRICE_TICKET;
+        uint eventBalance = events[_eventId].sales.mul(PRICE_TICKET);
         owner.transfer(eventBalance);
         emit LogEndSale(owner, eventBalance, _eventId);
     }

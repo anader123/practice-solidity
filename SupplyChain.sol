@@ -1,8 +1,11 @@
 // Consensys online course
-
 pragma solidity ^0.5.0;
 
+// Contract from OpenZeppelin Package
+import "@openzeppelin/contracts/math/SafeMath.sol";
+
 contract SupplyChain {
+  using SafeMath for uint;
   address public owner;
   uint public skuCount;
   mapping (uint => Item) public items;
@@ -32,7 +35,7 @@ contract SupplyChain {
   modifier checkValue(uint _sku) {
     _;
     uint _price = items[_sku].price;
-    uint amountToRefund = msg.value - _price;
+    uint amountToRefund = msg.value.sub(_price);
     items[_sku].buyer.transfer(amountToRefund);
   }
 
@@ -50,7 +53,7 @@ contract SupplyChain {
   function addItem(string memory _name, uint _price) public returns(bool){
     emit LogForSale(skuCount);
     items[skuCount] = Item({name: _name, sku: skuCount, price: _price, state: State.ForSale, seller: msg.sender, buyer: address(0)});
-    skuCount = skuCount + 1;
+    skuCount = skuCount.add(1);
     return true;
   }
 

@@ -1,29 +1,31 @@
-// Personal Idea
-// Location: https://ropsten.etherscan.io/address/0x0b889f8ba286faf11951caea2521d03d10a39b01#code
-pragma solidity 0.5.11;
+pragma solidity ^0.5.0;
 
-contract KingoftheHillContract {
-    address payable public king;
-    uint public kingPrice;
+// Contract from OpenZeppelin Package
+import "@openzeppelin/contracts/math/SafeMath.sol";
 
-    event Coronation(address indexed _newKing, uint indexed _newKingPrice);
+contract KingDappContract {
+    using SafeMath for uint;
+    address payable public King;
+    uint public kingRansom;
 
     constructor() public payable {
-        king = msg.sender;
-        kingPrice = msg.value;
+        King = msg.sender;
+        kingRansom = msg.value;
     }
 
-    // Fallback function
+    event Coronation(address indexed _newKing, uint _kingRansom);
+
     function() external payable {
-        revert();
+        revert("Please invoke a funtion when sending Eth to this address");
     }
 
     function becomeKing() public payable {
-        require(msg.value > kingPrice, "The value deposited must be greater than the last king");
-        kingPrice = msg.value;
-        // Transfers balance to the old king.
-        king.transfer(msg.value);
-        king = msg.sender;
-        emit Coronation(king, kingPrice);
+        require(msg.value >= (kingRansom.add(0.1 ether)), "Eth included was not enough");
+        address payable oldKing = King;
+        uint oldRansom = kingRansom;
+        King = msg.sender;
+        kingRansom = msg.value;
+        oldKing.transfer(oldRansom);
+        emit Coronation(msg.sender, msg.value);
     }
 }

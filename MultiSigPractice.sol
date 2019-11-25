@@ -1,8 +1,11 @@
 // Consensys online course
 pragma solidity ^0.5.0;
 
-contract MultiSignatureWallet {
+// Contract from OpenZeppelin Package
+import "@openzeppelin/contracts/math/SafeMath.sol";
 
+contract MultiSignatureWallet {
+    using SafeMath for uint;
     address[] public owners;
     uint public required;
     mapping (address => bool) public isOwner;
@@ -97,7 +100,7 @@ contract MultiSignatureWallet {
         uint count = 0;
         for (uint i = 0; i<owners.length; i++) {
             if(confirmations[transactionId][owners[i]])
-                count += 1;
+                count = count.add(1);
             if(count == required)
                 return true;
         }
@@ -115,7 +118,7 @@ contract MultiSignatureWallet {
             data: _data,
             executed: false
         });
-        ++transactionCount;
+        transactionCount = transactionCount.add(1);
         emit Submission(transactionId);
     }
 }
