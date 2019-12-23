@@ -5,11 +5,12 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 
 contract KingDappContract {
     using SafeMath for uint;
-    address payable public King;
+    address payable public king;
     uint public kingRansom;
+    mapping (address => uint256) public refunds;
 
     constructor() public payable {
-        King = msg.sender;
+        king = msg.sender;
         kingRansom = msg.value;
     }
 
@@ -21,11 +22,18 @@ contract KingDappContract {
 
     function becomeKing() public payable {
         require(msg.value >= (kingRansom.add(0.1 ether)), "Eth included was not enough");
-        address payable oldKing = King;
+
+        address payable oldKing = king;
         uint oldRansom = kingRansom;
-        King = msg.sender;
+        refunds[oldKing] = oldRansom;
+
+        king = msg.sender;
         kingRansom = msg.value;
-        oldKing.transfer(oldRansom);
         emit Coronation(msg.sender, msg.value);
+    }
+
+    function withdrawRefund() external payable {
+        require(refunds[msg.sender] > 0, "You do not have a balance to refund");
+        msg.sender.transfer(refunds[msg.sender]);
     }
 }
