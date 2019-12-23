@@ -9,12 +9,14 @@ contract KingDappContract {
     uint public kingRansom;
     mapping (address => uint256) public refunds;
 
+    event Coronation(address indexed newKing, uint kingRansom);
+    event Refund(address indexed to, uint refundAmount);
+
     constructor() public payable {
         king = msg.sender;
         kingRansom = msg.value;
     }
 
-    event Coronation(address indexed _newKing, uint _kingRansom);
 
     function() external payable {
         revert("Please invoke a funtion when sending Eth to this address");
@@ -34,6 +36,9 @@ contract KingDappContract {
 
     function withdrawRefund() external payable {
         require(refunds[msg.sender] > 0, "You do not have a balance to refund");
-        msg.sender.transfer(refunds[msg.sender]);
+        uint256 refundAmount = refunds[msg.sender];
+        refunds[msg.sender] = 0;
+        msg.sender.transfer(refundAmount);
+        emit Refund(msg.sender, refundAmount);
     }
 }
